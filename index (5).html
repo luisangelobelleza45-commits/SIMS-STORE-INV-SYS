@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIMS - Store Inventory Management System & POS</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            tindahan: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+              900: '#134e4a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .mic-pulse {
+      animation: pulse-ring 1.5s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans min-h-screen transition-colors">
+
+  <!-- TOP APP BAR -->
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <!-- Logo & Title -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-tindahan-700 flex items-center justify-center text-white shadow-md">
+          <i class="fa-solid fa-store text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-xl text-tindahan-700 dark:text-tindahan-500 tracking-tight">SIMS</span>
+            <span class="text-xs bg-tindahan-100 dark:bg-tindahan-900 text-tindahan-800 dark:text-tindahan-100 font-bold px-2 py-0.5 rounded-full">Web Edition</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Sari-Sari Store Inventory & POS System</p>
+        </div>
+      </div>
+
+        <!-- Gmail Sync & Login Pill -->
+        <button id="btn-open-gmail" onclick="openGmailModal()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 hover:bg-rose-100">
+          <i class="fa-solid fa-envelope"></i>
+          <span id="header-gmail-label">Mag-login sa Gmail</span>
+        </button>
+
+        <!-- Cashier Profile -->
+        <div id="header-cashier-box" class="hidden sm:flex items-center space-x-2 bg-slate-100 dark:bg-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer" onclick="openGmailModal()">
+          <i class="fa-solid fa-user-circle text-tindahan-600 text-sm"></i>
+          <span id="header-cashier">Mag-log in</span>
+        </div>
+
+        <!-- Language Switcher -->
+        <button id="btn-toggle-lang" class="bg-tindahan-50 dark:bg-slate-700 hover:bg-tindahan-100 text-tindahan-800 dark:text-tindahan-100 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1">
+          <span id="lang-flag">🇵🇭</span>
+          <span id="lang-label">Taglish</span>
+        </button>
+
+        <!-- Dark Mode Toggle -->
+        <button id="btn-toggle-dark" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition">
+          <i id="dark-icon" class="fa-solid fa-moon"></i>
+        </button>
+
+        <!-- AI Voice Mic Button -->
+        <button id="btn-open-voice" class="bg-tindahan-700 hover:bg-tindahan-800 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow flex items-center space-x-1.5 transition">
+          <i class="fa-solid fa-microphone"></i>
+          <span class="hidden md:inline">AI Boses</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN NAVIGATION TABS -->
+    <div class="max-w-7xl mx-auto px-4 flex space-x-1 sm:space-x-4 border-t border-slate-100 dark:border-slate-700/60 text-sm overflow-x-auto">
+      <button onclick="switchTab('inventory')" id="tab-btn-inventory" class="nav-tab py-2.5 px-3 border-b-2 font-bold text-tindahan-700 dark:text-tindahan-500 border-tindahan-700 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-boxes-stacked"></i>
+        <span class="tab-label-inventory">Paninda</span>
+      </button>
+
+      <button onclick="switchTab('pos')" id="tab-btn-pos" class="nav-tab py-2.5 px-3 border-b-2 font-medium text-slate-500 dark:text-slate-400 border-transparent hover:text-tindahan-700 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-cash-register"></i>
+        <span class="tab-label-pos">POS Kahero</span>
+        <span id="cart-nav-badge" class="hidden bg-rose-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">0</span>
+      </button>
+
+      <button onclick="switchTab('reports')" id="tab-btn-reports" class="nav-tab py-2.5 px-3 border-b-2 font-medium text-slate-500 dark:text-slate-400 border-transparent hover:text-tindahan-700 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-chart-line"></i>
+        <span class="tab-label-reports">Benta & Ulat</span>
+      </button>
+
+      <button onclick="switchTab('audit')" id="tab-btn-audit" class="nav-tab py-2.5 px-3 border-b-2 font-medium text-slate-500 dark:text-slate-400 border-transparent hover:text-tindahan-700 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-scale-balanced"></i>
+        <span class="tab-label-audit">Discrepancy Audit</span>
+      </button>
+
+      <button onclick="switchTab('alerts')" id="tab-btn-alerts" class="nav-tab py-2.5 px-3 border-b-2 font-medium text-slate-500 dark:text-slate-400 border-transparent hover:text-tindahan-700 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-bell"></i>
+        <span class="tab-label-alerts">Alerto</span>
+        <span id="alerts-nav-badge" class="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- NOTIFICATION BANNER -->
+  <div id="toast-banner" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-2">
+    <div class="bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 text-sm font-semibold border border-slate-700">
+      <i id="toast-icon" class="fa-solid fa-circle-check text-tindahan-500 text-base"></i>
+      <span id="toast-msg">Mensahe</span>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 py-6">
+
+    <!-- ============================================== -->
+    <!-- TAB 1: PANINDA (INVENTORY MANAGEMENT) -->
+    <!-- ============================================== -->
+    <div id="tab-inventory" class="tab-content space-y-6">
+      <!-- Valuation Overview Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Kabuuang Puhunan (Cost)</p>
+          <p id="stat-capital" class="text-xl sm:text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">₱0.00</p>
+        </div>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Halaga sa Benta (Retail)</p>
+          <p id="stat-retail" class="text-xl sm:text-2xl font-black text-tindahan-700 dark:text-tindahan-500 mt-1">₱0.00</p>
+        </div>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Inaasahang Tubo (Profit)</p>
+          <p id="stat-profit" class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">₱0.00</p>
+        </div>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Klase ng Paninda</p>
+            <p id="stat-items-count" class="text-xl sm:text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">0</p>
+          </div>
+          <button onclick="openAddModal()" class="w-10 h-10 bg-tindahan-700 hover:bg-tindahan-800 text-white rounded-xl flex items-center justify-center shadow-md transition">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Controls: Search & Category Chips -->
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="relative flex-1">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+            <input type="text" id="inventory-search" placeholder="Maghanap ng paninda, brand..." class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-tindahan-600">
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="openAddModal()" class="bg-tindahan-700 hover:bg-tindahan-800 text-white px-4 py-2 rounded-xl text-sm font-bold shadow flex items-center space-x-2 transition">
+              <i class="fa-solid fa-plus text-xs"></i>
+              <span>Magdagdag ng Paninda</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="flex space-x-2 overflow-x-auto pb-1" id="category-chips">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="products-container">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 2: POS CASH REGISTER WINDOW -->
+    <!-- ============================================== -->
+    <div id="tab-pos" class="tab-content hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Left: Product Catalog (7 Cols) -->
+        <div class="lg:col-span-7 bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="font-bold text-base flex items-center space-x-2">
+              <i class="fa-solid fa-cart-plus text-tindahan-600"></i>
+              <span>Pumili ng Paninda (Catalog)</span>
+            </h2>
+            <input type="text" id="pos-search" placeholder="Search..." class="px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs w-48">
+          </div>
+
+          <div class="flex space-x-2 overflow-x-auto pb-1" id="pos-category-chips"></div>
+
+          <!-- Fast POS Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[560px] overflow-y-auto pr-1" id="pos-grid">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Right: Current Cart & Sukli Calculator (5 Cols) -->
+        <div class="lg:col-span-5 bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+            <h2 class="font-bold text-base flex items-center space-x-2">
+              <i class="fa-solid fa-receipt text-tindahan-600"></i>
+              <span>Listahan ng Bibilhin (Cart)</span>
+            </h2>
+            <button onclick="clearPosCart()" class="text-xs text-rose-600 hover:text-rose-700 font-bold">
+              Alisin Lahat
+            </button>
+          </div>
+
+          <!-- Cart Items Scroll -->
+          <div class="space-y-2 max-h-56 overflow-y-auto pr-1" id="pos-cart-items">
+            <!-- Rendered via JS -->
+          </div>
+
+          <!-- Checkout Calculation -->
+          <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl space-y-3 border border-slate-100 dark:border-slate-700">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-bold text-slate-600 dark:text-slate-300">Kabuuang Bayarin:</span>
+              <span id="pos-total-due" class="text-2xl font-black text-tindahan-700 dark:text-tindahan-400">₱0.00</span>
+            </div>
+
+            <!-- Cash Input -->
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-slate-500 dark:text-slate-400">Bayad ng Customer (₱):</label>
+              <div class="flex space-x-2">
+                <input type="number" id="pos-cash-input" placeholder="0.00" class="flex-1 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg text-base font-bold focus:ring-2 focus:ring-tindahan-600">
+                <button onclick="setPosExact()" class="bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 text-xs font-bold px-3 py-2 rounded-lg transition">Eksakto</button>
+              </div>
+            </div>
+
+            <!-- Quick Cash Buttons -->
+            <div class="flex space-x-1.5 overflow-x-auto pb-1 text-xs font-bold">
+              <button onclick="setPosCash(20)" class="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md">₱20</button>
+              <button onclick="setPosCash(50)" class="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md">₱50</button>
+              <button onclick="setPosCash(100)" class="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md">₱100</button>
+              <button onclick="setPosCash(200)" class="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md">₱200</button>
+              <button onclick="setPosCash(500)" class="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md">₱500</button>
+              <button onclick="setPosCash(1000)" class="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md">₱1000</button>
+            </div>
+
+            <!-- Sukli Due -->
+            <div class="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-slate-600">
+              <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Sukli (Change):</span>
+              <span id="pos-change-due" class="text-lg font-black text-emerald-600 dark:text-emerald-400">₱0.00</span>
+            </div>
+          </div>
+
+          <!-- Complete Sale Button -->
+          <button id="btn-complete-pos" onclick="completePosSale()" class="w-full bg-tindahan-700 hover:bg-tindahan-800 disabled:opacity-50 text-white py-3 rounded-xl font-bold shadow-lg flex items-center justify-center space-x-2 text-sm transition">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>BAYARAN AT ILISTA ANG BENTA</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 3: BENTA & ULAT (SALES REPORTS) -->
+    <!-- ============================================== -->
+    <div id="tab-reports" class="tab-content hidden space-y-6">
+      <!-- Period Selector -->
+      <div class="flex space-x-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl max-w-xs">
+        <button onclick="setPeriod('today')" id="period-today" class="flex-1 py-1.5 rounded-lg font-bold text-xs bg-white dark:bg-slate-700 shadow text-tindahan-700 dark:text-tindahan-400">Araw na Ito</button>
+        <button onclick="setPeriod('week')" id="period-week" class="flex-1 py-1.5 rounded-lg font-medium text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">Linggong Ito</button>
+        <button onclick="setPeriod('all')" id="period-all" class="flex-1 py-1.5 rounded-lg font-medium text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">Lahat</button>
+      </div>
+
+      <!-- Financial Metrics -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-tindahan-700 text-white p-5 rounded-2xl shadow-sm">
+          <p class="text-xs opacity-80 font-medium">Kabuuang Benta (Gross Revenue)</p>
+          <p id="report-revenue" class="text-3xl font-black mt-2">₱0.00</p>
+          <p id="report-tx-count" class="text-xs opacity-75 mt-1">0 Transaksyon</p>
+        </div>
+
+        <div class="bg-emerald-600 text-white p-5 rounded-2xl shadow-sm">
+          <p class="text-xs opacity-80 font-medium">Kabuuang Tubo (Net Profit)</p>
+          <p id="report-profit" class="text-3xl font-black mt-2">₱0.00</p>
+          <p id="report-margin" class="text-xs opacity-75 mt-1">Profit Margin: 0%</p>
+        </div>
+
+        <!-- Top Selling -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <h3 class="font-bold text-sm text-slate-700 dark:text-slate-300 mb-3 flex items-center space-x-2">
+            <i class="fa-solid fa-trophy text-amber-500"></i>
+            <span>Pinakamabenta (Top Sellers)</span>
+          </h3>
+          <div class="space-y-2 text-xs" id="top-sellers-list"></div>
+        </div>
+      </div>
+
+      <!-- Sales Log Table -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+          <h3 class="font-bold text-sm">Kasaysayan ng Benta & Resibo</h3>
+          <span class="text-xs text-slate-400" id="sales-count-badge">0 sales</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 font-semibold uppercase">
+              <tr>
+                <th class="p-3">Oras</th>
+                <th class="p-3">Resibo #</th>
+                <th class="p-3">Paninda</th>
+                <th class="p-3">Dami</th>
+                <th class="p-3">Benta</th>
+                <th class="p-3">Tubo</th>
+                <th class="p-3">Kahero</th>
+              </tr>
+            </thead>
+            <tbody id="sales-table-body" class="divide-y divide-slate-100 dark:divide-slate-700"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 4: DISCREPANCY AUDIT CHECKER -->
+    <!-- ============================================== -->
+    <div id="tab-audit" class="tab-content hidden space-y-6">
+      <div class="bg-tindahan-50 dark:bg-tindahan-950/40 border border-tindahan-200 dark:border-tindahan-800 p-4 rounded-2xl flex items-start space-x-3">
+        <i class="fa-solid fa-circle-info text-tindahan-700 text-lg mt-0.5"></i>
+        <div>
+          <h3 class="font-bold text-sm text-tindahan-900 dark:text-tindahan-200">Physical Count Audit (Discrepancy Checker)</h3>
+          <p class="text-xs text-tindahan-800/80 dark:text-tindahan-300 mt-0.5">I-kumpara ang System Stock sa totoong bilang sa estante. Kung may kulang o nawawala, awtomatikong makikita ang halaga ng lugi at maaari itong itama sa isang pindot.</p>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="p-4 border-b border-slate-100 dark:border-slate-700 font-bold text-sm">
+          Paghahambing ng System Stock vs. Aktwal na Bilang
+        </div>
+        <div class="divide-y divide-slate-100 dark:divide-slate-700" id="audit-items-container">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- Stock Change Audit Logs -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="p-4 border-b border-slate-100 dark:border-slate-700 font-bold text-sm">
+          Kasaysayan ng Stock Logs & Audit Trail
+        </div>
+        <div class="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700" id="stock-logs-container">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 5: ALERTO (LOW STOCK & EXPIRY) -->
+    <!-- ============================================== -->
+    <div id="tab-alerts" class="tab-content hidden space-y-6">
+      <!-- Low Stock Section -->
+      <div class="space-y-3">
+        <h3 class="font-bold text-sm flex items-center space-x-2 text-amber-600 dark:text-amber-400">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>Mga Panindang Paubos o Ubos Na</span>
+        </h3>
+        <div class="space-y-2.5" id="low-stock-container"></div>
+      </div>
+
+      <!-- Expiration Section -->
+      <div class="space-y-3 pt-4">
+        <h3 class="font-bold text-sm flex items-center space-x-2 text-rose-600 dark:text-rose-400">
+          <i class="fa-solid fa-calendar-xmark"></i>
+          <span>Alerto sa Pagkapanis / Expiration</span>
+        </h3>
+        <div class="space-y-2.5" id="expiry-container"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============================================== -->
+  <!-- MODAL: ADD / EDIT PRODUCT -->
+  <!-- ============================================== -->
+  <div id="modal-product" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-3">
+        <h3 id="modal-title" class="font-bold text-base">Magdagdag ng Bagong Paninda</h3>
+        <button onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <input type="hidden" id="prod-id">
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold mb-1">Pangalan ng Produkto</label>
+          <input type="text" id="prod-name" placeholder="Hal. Coke Mismo 290ml" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold mb-1">Kategorya</label>
+            <select id="prod-category" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+              <option value="Drinks">Drinks</option>
+              <option value="Biscuits">Biscuits</option>
+              <option value="Instant Noodles">Instant Noodles</option>
+              <option value="Canned Goods">Canned Goods</option>
+              <option value="Snacks">Snacks</option>
+              <option value="Candies">Candies</option>
+              <option value="Toiletries">Toiletries</option>
+              <option value="Condiments">Condiments</option>
+              <option value="Cigarettes & Load">Cigarettes & Load</option>
+              <option value="Rice & Grains">Rice & Grains</option>
+              <option value="Others">Others</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Yunit (pcs, pack, etc.)</label>
+            <input type="text" id="prod-unit" value="pcs" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold mb-1">Puhunan (₱)</label>
+            <input type="number" step="0.5" id="prod-cost" placeholder="0.00" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Presyo ng Benta (₱)</label>
+            <input type="number" step="0.5" id="prod-sell" placeholder="0.00" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold mb-1">Stock Quantity</label>
+            <input type="number" id="prod-stock" value="10" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Low Stock Alert Level</label>
+            <input type="number" id="prod-threshold" value="5" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Tinatayang Petsa ng Expiry (Opsyonal)</label>
+          <input type="date" id="prod-expiry" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg">
+        </div>
+      </div>
+
+      <div class="flex space-x-2 pt-2">
+        <button onclick="closeProductModal()" class="flex-1 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 font-bold text-xs">Kanselahin</button>
+        <button onclick="saveProductModal()" class="flex-1 py-2.5 bg-tindahan-700 hover:bg-tindahan-800 text-white rounded-lg font-bold text-xs shadow">I-save ang Paninda</button>
+      </div>
+
+      <!-- Delete Whole Item Button in Modal -->
+      <div id="modal-delete-btn-container" class="pt-2 border-t border-slate-100 dark:border-slate-700 hidden">
+        <button onclick="confirmDeleteCurrentModalProduct()" class="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 rounded-lg font-bold text-xs flex items-center justify-center space-x-2 transition">
+          <i class="fa-solid fa-trash-can"></i>
+          <span>Burahin ang Buong Item sa Imbentaryo</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: DELETE PRODUCT CONFIRMATION DIALOG -->
+  <!-- ============================================== -->
+  <div id="modal-delete-confirm" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center space-y-4">
+      <div class="w-14 h-14 bg-rose-100 dark:bg-rose-950/60 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+        <i class="fa-solid fa-trash-can"></i>
+      </div>
+
+      <div>
+        <h3 class="font-bold text-base text-slate-900 dark:text-slate-100">Burahin ang Buong Item?</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Sigurado ka bang nais mong alisin ang produktong ito kasama ang lahat ng natitirang stock nito?</p>
+      </div>
+
+      <div class="bg-slate-50 dark:bg-slate-700/60 p-3 rounded-xl text-left text-xs space-y-1.5 border border-slate-100 dark:border-slate-700">
+        <div class="flex justify-between">
+          <span class="text-slate-500">Paninda:</span>
+          <span id="del-confirm-name" class="font-bold text-slate-800 dark:text-slate-200">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Kasalukuyang Stock:</span>
+          <span id="del-confirm-stock" class="font-bold text-rose-600">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Halaga sa Tindahan:</span>
+          <span id="del-confirm-value" class="font-bold text-tindahan-700 dark:text-tindahan-400">-</span>
+        </div>
+      </div>
+
+      <div class="flex space-x-2 pt-2">
+        <button onclick="closeDeleteConfirmModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 font-bold text-xs">Huwag Muna</button>
+        <button onclick="executeDeleteProduct()" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-xs shadow flex items-center justify-center space-x-1.5">
+          <i class="fa-solid fa-trash-can text-xs"></i>
+          <span>Oo, Burahin</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: GMAIL ACCOUNT & CLOUD SAVE DIALOG -->
+  <!-- ============================================== -->
+  <div id="modal-gmail" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-full bg-rose-600 text-white flex items-center justify-center text-base shadow">
+            <i class="fa-solid fa-envelope"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-slate-900 dark:text-slate-100">Gmail Account & Cloud Save</h3>
+            <p id="gmail-modal-sub" class="text-xs text-slate-500 dark:text-slate-400">I-save ang iyong mga pagbabago</p>
+          </div>
+        </div>
+        <button onclick="closeGmailModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <!-- Logged In Status Card -->
+      <div id="gmail-active-card" class="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-900/60 space-y-3 hidden">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-base shadow">
+              <span id="gmail-initial">-</span>
+            </div>
+            <div>
+              <div class="flex items-center space-x-1.5">
+                <span id="gmail-user-name" class="font-bold text-sm text-slate-900 dark:text-slate-100">-</span>
+                <i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i>
+              </div>
+              <p id="gmail-user-email" class="text-xs text-emerald-700 dark:text-emerald-400 font-semibold">-</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs pt-1 border-t border-emerald-100 dark:border-emerald-900/40">
+          <span class="text-slate-500">Huling Na-save:</span>
+          <span id="gmail-last-saved" class="font-bold text-slate-700 dark:text-slate-200">Hindi pa</span>
+        </div>
+
+        <div class="flex space-x-2 pt-1">
+          <!-- Save Changes Button -->
+          <button onclick="saveChangesToGmail()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow flex items-center justify-center space-x-2 transition">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>I-save ang mga Pagbabago</span>
+          </button>
+          <!-- Restore Backup Button -->
+          <button onclick="restoreBackupFromGmail()" class="py-2.5 px-3 bg-white dark:bg-slate-700 hover:bg-slate-100 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 rounded-xl font-bold text-xs transition" title="Ibalik ang backup">
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+        </div>
+
+        <div class="flex justify-between items-center pt-1 text-xs">
+          <button onclick="toggleGmailSwitchForm()" class="text-tindahan-600 hover:underline">Palitan ang account</button>
+          <button onclick="signOutGmail()" class="text-rose-600 hover:underline font-semibold">Mag-sign out</button>
+        </div>
+      </div>
+
+      <!-- Login / Connect Form -->
+      <div id="gmail-login-form" class="space-y-3">
+        <div class="text-xs space-y-2">
+          <div>
+            <label class="block font-semibold mb-1">Gmail Address:</label>
+            <input type="email" id="gmail-input-email" placeholder="halimbawa@gmail.com" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Pangalan ng May-ari / Tindero:</label>
+            <input type="text" id="gmail-input-name" placeholder="Pangalan" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs">
+          </div>
+        </div>
+
+        <button onclick="submitGmailLogin()" class="w-full py-2.5 bg-tindahan-700 hover:bg-tindahan-800 text-white rounded-xl font-bold text-xs shadow flex items-center justify-center space-x-2 transition">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <span>Mag-login at I-save ang Lahat ng Pagbabago</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MANDATORY LOGIN WALL (SHOWN WHEN NOT LOGGED IN) -->
+  <!-- ============================================== -->
+  <div id="modal-login-wall" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl shadow-2xl p-7 text-center space-y-5 border border-slate-200 dark:border-slate-700">
+      <div class="w-16 h-16 rounded-2xl bg-tindahan-700 text-white flex items-center justify-center mx-auto text-3xl shadow-lg">
+        <i class="fa-solid fa-store"></i>
+      </div>
+
+      <div>
+        <h2 class="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Maligayang Pagdating sa SIMS</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+          Kailangan munang mag-log in gamit ang iyong Gmail account upang buksan ang tindahan, ma-save ang iyong mga paninda, at makapagsimula.
+        </p>
+      </div>
+
+      <div class="text-left text-xs space-y-3 pt-1">
+        <div>
+          <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">
+            <i class="fa-solid fa-envelope text-rose-500 mr-1"></i> Iyong Gmail Address <span class="text-rose-500">*</span>
+          </label>
+          <input type="email" id="wall-input-email" placeholder="halimbawa@gmail.com" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-tindahan-600">
+        </div>
+
+        <div>
+          <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">
+            <i class="fa-solid fa-user text-tindahan-600 mr-1"></i> Pangalan ng May-ari / Tindero <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" id="wall-input-name" placeholder="Hal. Maria / Juan" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-tindahan-600">
+        </div>
+      </div>
+
+      <button onclick="submitWallLogin()" class="w-full py-3 bg-tindahan-700 hover:bg-tindahan-800 text-white rounded-xl font-bold text-sm shadow-xl flex items-center justify-center space-x-2 transition transform active:scale-95">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Mag-login sa Gmail at Mag-input ng Paninda</span>
+      </button>
+
+      <p class="text-[11px] text-slate-400">
+        Ligtas at sa iyong sariling browser naka-save ang lahat ng impormasyon.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: OFFICIAL RECEIPT DIALOG -->
+  <!-- ============================================== -->
+  <div id="modal-receipt" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-[#fffdf7] text-slate-800 w-full max-w-sm rounded-2xl shadow-2xl p-6 space-y-4 border border-amber-200">
+      <div class="text-center space-y-1">
+        <i class="fa-solid fa-store text-tindahan-700 text-2xl"></i>
+        <h3 class="font-black text-lg tracking-tight text-slate-900">SIMS TINDAHAN EXPRESS</h3>
+        <p class="text-xs text-slate-500">Opisyal na Resibo ng Benta</p>
+        <p id="receipt-no" class="font-mono text-xs font-bold text-slate-800">REC-000000</p>
+        <p id="receipt-date" class="text-[11px] text-slate-400">Date</p>
+      </div>
+
+      <div class="border-t border-b border-dashed border-slate-300 py-3 space-y-2 text-xs" id="receipt-items"></div>
+
+      <div class="space-y-1 text-xs">
+        <div class="flex justify-between font-black text-sm">
+          <span>KABUUAN:</span>
+          <span id="receipt-total" class="text-tindahan-800">₱0.00</span>
+        </div>
+        <div class="flex justify-between text-slate-600">
+          <span>Bayad:</span>
+          <span id="receipt-paid" class="font-bold">₱0.00</span>
+        </div>
+        <div class="flex justify-between font-bold text-emerald-700">
+          <span>Sukli:</span>
+          <span id="receipt-change">₱0.00</span>
+        </div>
+      </div>
+
+      <div class="text-center text-[11px] text-slate-400 pt-2">
+        Salamat sa iyong pagbili!<br>Balik po kayo muli!
+      </div>
+
+      <button onclick="closeReceiptModal()" class="w-full py-2.5 bg-tindahan-700 hover:bg-tindahan-800 text-white rounded-xl font-bold text-xs shadow">OK / Bagong Benta</button>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: AI VOICE ASSISTANT -->
+  <!-- ============================================== -->
+  <div id="modal-voice" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-6 text-center space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="font-bold text-base text-tindahan-700 dark:text-tindahan-400">AI Boses ng Tindahan</h3>
+        <button onclick="closeVoiceModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <!-- Pulse Mic -->
+      <div class="relative w-24 h-24 mx-auto flex items-center justify-center">
+        <div id="mic-pulse-ring" class="absolute inset-0 bg-tindahan-500/20 rounded-full hidden"></div>
+        <button id="voice-record-btn" onclick="toggleSpeechRecognition()" class="w-16 h-16 rounded-full bg-tindahan-700 hover:bg-tindahan-800 text-white flex items-center justify-center text-2xl shadow-lg transition">
+          <i class="fa-solid fa-microphone"></i>
+        </button>
+      </div>
+
+      <p id="voice-status" class="text-xs text-slate-500 font-semibold">Pindutin ang mikropono para magsalita</p>
+
+      <!-- Text Fallback -->
+      <div class="flex space-x-2">
+        <input type="text" id="voice-manual-input" placeholder="O i-type dito: 'Benta 2 Coke Mismo'..." class="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-xs">
+        <button onclick="processVoiceManual()" class="bg-tindahan-700 text-white px-3 py-2 rounded-lg text-xs font-bold">I-execute</button>
+      </div>
+
+      <!-- Quick test chips -->
+      <div class="text-left pt-2">
+        <p class="text-[11px] font-bold text-slate-400 mb-1.5">Mga halimbawang utos:</p>
+        <div class="flex flex-wrap gap-1.5 text-[11px]">
+          <button onclick="testVoiceCmd('Benta 2 Coke Mismo')" class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200">"Benta 2 Coke Mismo"</button>
+          <button onclick="testVoiceCmd('Nabenta 3 Lucky Me Pancit Canton')" class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200">"Nabenta 3 Lucky Me"</button>
+          <button onclick="testVoiceCmd('Dagdag 10 Skyflakes')" class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200">"Dagdag 10 Skyflakes"</button>
+          <button onclick="testVoiceCmd('Minus 1 Safeguard')" class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200">"Minus 1 Safeguard"</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION CORE (IndexedDB / LocalStorage Persistence) -->
+  <script>
+    // State (Starts empty - users must log in and input their own products)
+    let currentGmailUser = JSON.parse(localStorage.getItem('sims_gmail_user') || 'null');
+    let products = [];
+    let sales = [];
+    let stockLogs = [];
+    let posCart = [];
+    let currentPeriod = 'today';
+    let currentCategory = null;
+    let posCategory = null;
+    let isTagalog = true;
+    let recognition = null;
+    let isListening = false;
+
+    function loadUserData() {
+      if (currentGmailUser && currentGmailUser.email) {
+        products = JSON.parse(localStorage.getItem('sims_products_' + currentGmailUser.email) || '[]');
+        sales = JSON.parse(localStorage.getItem('sims_sales_' + currentGmailUser.email) || '[]');
+        stockLogs = JSON.parse(localStorage.getItem('sims_stock_logs_' + currentGmailUser.email) || '[]');
+      } else {
+        products = [];
+        sales = [];
+        stockLogs = [];
+      }
+    }
+    loadUserData();
+
+    function saveState() {
+      if (currentGmailUser && currentGmailUser.email) {
+        localStorage.setItem('sims_products_' + currentGmailUser.email, JSON.stringify(products));
+        localStorage.setItem('sims_sales_' + currentGmailUser.email, JSON.stringify(sales));
+        localStorage.setItem('sims_stock_logs_' + currentGmailUser.email, JSON.stringify(stockLogs));
+      }
+      renderAll();
+    }
+
+    function checkLoginGate() {
+      const wall = document.getElementById('modal-login-wall');
+      if (!currentGmailUser || !currentGmailUser.email) {
+        wall.classList.remove('hidden');
+      } else {
+        wall.classList.add('hidden');
+      }
+    }
+
+    function showToast(msg, icon = 'fa-circle-check', isError = false) {
+      const banner = document.getElementById('toast-banner');
+      const iconEl = document.getElementById('toast-icon');
+      const msgEl = document.getElementById('toast-msg');
+      msgEl.innerText = msg;
+      iconEl.className = `fa-solid ${icon} text-base ${isError ? 'text-rose-500' : 'text-emerald-400'}`;
+      banner.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-2');
+      setTimeout(() => {
+        banner.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
+      }, 3500);
+    }
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-tab').forEach(el => {
+        el.classList.remove('font-bold', 'text-tindahan-700', 'dark:text-tindahan-500', 'border-tindahan-700');
+        el.classList.add('font-medium', 'text-slate-500', 'dark:text-slate-400', 'border-transparent');
+      });
+
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.add('font-bold', 'text-tindahan-700', 'dark:text-tindahan-500', 'border-tindahan-700');
+        activeBtn.classList.remove('font-medium', 'text-slate-500', 'dark:text-slate-400', 'border-transparent');
+      }
+      renderAll();
+    }
+
+    // Category lists
+    const CATEGORIES = ["Lahat", "Drinks", "Biscuits", "Instant Noodles", "Canned Goods", "Snacks", "Toiletries", "Others"];
+
+    function renderCategoryChips() {
+      const container = document.getElementById('category-chips');
+      container.innerHTML = CATEGORIES.map(cat => `
+        <button onclick="setCategory('${cat}')" class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition ${
+          (cat === 'Lahat' && !currentCategory) || cat === currentCategory
+            ? 'bg-tindahan-700 text-white'
+            : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+        }">${cat}</button>
+      `).join('');
+
+      const posCatContainer = document.getElementById('pos-category-chips');
+      posCatContainer.innerHTML = CATEGORIES.map(cat => `
+        <button onclick="setPosCategory('${cat}')" class="px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition ${
+          (cat === 'Lahat' && !posCategory) || cat === posCategory
+            ? 'bg-tindahan-700 text-white'
+            : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+        }">${cat}</button>
+      `).join('');
+    }
+
+    function setCategory(cat) {
+      currentCategory = cat === 'Lahat' ? null : cat;
+      renderAll();
+    }
+    function setPosCategory(cat) {
+      posCategory = cat === 'Lahat' ? null : cat;
+      renderAll();
+    }
+
+    // Render Inventory
+    function renderInventory() {
+      const query = (document.getElementById('inventory-search')?.value || '').toLowerCase();
+      const filtered = products.filter(p => {
+        const matchesQuery = !query || p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query);
+        const matchesCat = !currentCategory || p.category === currentCategory;
+        return matchesQuery && matchesCat;
+      });
+
+      // Stats
+      const capital = products.reduce((acc, p) => acc + (p.costPrice * p.stockQuantity), 0);
+      const retail = products.reduce((acc, p) => acc + (p.sellingPrice * p.stockQuantity), 0);
+      const profit = retail - capital;
+
+      document.getElementById('stat-capital').innerText = `₱${capital.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+      document.getElementById('stat-retail').innerText = `₱${retail.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+      document.getElementById('stat-profit').innerText = `₱${profit.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+      document.getElementById('stat-items-count').innerText = products.length;
+
+      // Cards
+      const container = document.getElementById('products-container');
+      if (products.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-16 px-6 text-center bg-white dark:bg-slate-800 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-700 space-y-4">
+            <div class="w-16 h-16 mx-auto bg-tindahan-50 dark:bg-tindahan-950/60 text-tindahan-700 dark:text-tindahan-400 rounded-2xl flex items-center justify-center text-3xl shadow-sm">
+              <i class="fa-solid fa-boxes-packing"></i>
+            </div>
+            <div>
+              <h3 class="font-black text-lg text-slate-900 dark:text-slate-100">Wala pang paninda sa iyong tindahan</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1">
+                Simulan ang iyong tindahan sa pamamagitan ng pag-input ng iyong unang paninda.
+              </p>
+            </div>
+            <button onclick="openAddModal()" class="px-6 py-3 bg-tindahan-700 hover:bg-tindahan-800 text-white rounded-xl text-xs font-bold shadow-lg inline-flex items-center space-x-2 transition transform active:scale-95">
+              <i class="fa-solid fa-plus"></i>
+              <span>Mag-input ng Unang Paninda</span>
+            </button>
+          </div>
+        `;
+        return;
+      }
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400">Walang nahanap na paninda.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(p => {
+        const isLow = p.stockQuantity <= p.lowStockThreshold && p.stockQuantity > 0;
+        const isOut = p.stockQuantity <= 0;
+        const profitEach = (p.sellingPrice - p.costPrice).toFixed(2);
+        const badge = isOut
+          ? `<span class="bg-rose-100 dark:bg-rose-950/60 text-rose-600 text-[10px] font-extrabold px-2 py-0.5 rounded-md">UBOS NA</span>`
+          : isLow
+          ? `<span class="bg-amber-100 dark:bg-amber-950/60 text-amber-600 text-[10px] font-bold px-2 py-0.5 rounded-md">PAUBOS: ${p.stockQuantity}</span>`
+          : `<span class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-md">${p.stockQuantity} ${p.unit}</span>`;
+
+        return `
+          <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-start gap-2">
+                <div>
+                  <h4 class="font-bold text-sm text-slate-900 dark:text-slate-100">${p.name}</h4>
+                  <span class="text-[11px] text-slate-400">${p.category}</span>
+                </div>
+                ${badge}
+              </div>
+
+              <div class="mt-3 flex justify-between items-baseline">
+                <div>
+                  <span class="text-xl font-black text-tindahan-700 dark:text-tindahan-500">₱${p.sellingPrice.toFixed(2)}</span>
+                  <span class="text-xs text-slate-400">/${p.unit}</span>
+                </div>
+                <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">Tubo: +₱${profitEach}</span>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-2">
+              <div class="flex items-center space-x-1.5 flex-1">
+                <button onclick="quickSell(${p.id})" class="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 rounded-lg text-xs font-bold transition flex items-center justify-center space-x-1">
+                  <i class="fa-solid fa-minus text-[10px]"></i>
+                  <span>Benta -1</span>
+                </button>
+                <button onclick="quickAdd(${p.id})" class="flex-1 py-1.5 bg-tindahan-50 hover:bg-tindahan-100 text-tindahan-700 dark:bg-tindahan-950/40 dark:text-tindahan-300 rounded-lg text-xs font-bold transition flex items-center justify-center space-x-1">
+                  <i class="fa-solid fa-plus text-[10px]"></i>
+                  <span>Dagdag +1</span>
+                </button>
+              </div>
+
+              <div class="flex items-center space-x-1">
+                <button onclick="openEditModal(${p.id})" title="I-edit" class="p-2 text-slate-400 hover:text-slate-600 rounded-lg transition"><i class="fa-solid fa-pen text-xs"></i></button>
+                <button onclick="promptDeleteProduct(${p.id})" title="Burahin ang buong item" class="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition"><i class="fa-solid fa-trash-can text-xs"></i></button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Quick Sell / Add
+    function quickSell(id) {
+      const p = products.find(x => x.id === id);
+      if (!p || p.stockQuantity <= 0) {
+        showToast("Ubos na ang stock!", "fa-circle-xmark", true);
+        return;
+      }
+      p.stockQuantity -= 1;
+      const profit = p.sellingPrice - p.costPrice;
+      sales.unshift({
+        id: Date.now(),
+        receiptNumber: `DIR-${Date.now() % 100000}`,
+        productId: p.id,
+        productName: p.name,
+        quantity: 1,
+        total: p.sellingPrice,
+        profit: profit,
+        cashier: getActiveCashierName(),
+        timestamp: Date.now()
+      });
+      stockLogs.unshift({
+        id: Date.now(),
+        productId: p.id,
+        productName: p.name,
+        changeAmount: -1,
+        previousStock: p.stockQuantity + 1,
+        newStock: p.stockQuantity,
+        reason: "Mabilisang Benta (-1)",
+        performedBy: getActiveCashierName(),
+        timestamp: Date.now()
+      });
+      showToast(`Nabenta: 1 ${p.name} (₱${p.sellingPrice.toFixed(2)})`);
+      saveState();
+    }
+
+    function quickAdd(id) {
+      const p = products.find(x => x.id === id);
+      if (!p) return;
+      p.stockQuantity += 1;
+      p.lastRestocked = Date.now();
+      stockLogs.unshift({
+        id: Date.now(),
+        productId: p.id,
+        productName: p.name,
+        changeAmount: +1,
+        previousStock: p.stockQuantity - 1,
+        newStock: p.stockQuantity,
+        reason: "Mabilisang Dagdag (+1)",
+        performedBy: getActiveCashierName(),
+        timestamp: Date.now()
+      });
+      showToast(`Idinagdag: +1 sa ${p.name}`);
+      saveState();
+    }
+
+    // Render POS Grid & Cart
+    function renderPos() {
+      const query = (document.getElementById('pos-search')?.value || '').toLowerCase();
+      const filtered = products.filter(p => {
+        const matchesQuery = !query || p.name.toLowerCase().includes(query);
+        const matchesCat = !posCategory || p.category === posCategory;
+        return matchesQuery && matchesCat;
+      });
+
+      const grid = document.getElementById('pos-grid');
+      if (products.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-xs text-slate-400 space-y-3">
+            <i class="fa-solid fa-boxes-packing text-3xl text-slate-300 dark:text-slate-600"></i>
+            <p class="font-medium text-slate-600 dark:text-slate-300">Walang paninda sa tindahan.</p>
+            <p class="text-[11px] text-slate-400">Kailangan mo munang mag-input ng paninda bago magbenta sa POS.</p>
+            <button onclick="switchTab('inventory'); openAddModal();" class="px-4 py-2 bg-tindahan-700 hover:bg-tindahan-800 text-white font-bold rounded-lg text-xs shadow transition">
+              Mag-input ng Paninda ➔
+            </button>
+          </div>
+        `;
+        document.getElementById('pos-cart-items').innerHTML = `<div class="py-8 text-center text-xs text-slate-400">Walang paninda na mapipili.</div>`;
+        document.getElementById('pos-total-due').innerText = '₱0.00';
+        document.getElementById('pos-change-due').innerText = '₱0.00';
+        document.getElementById('btn-complete-pos').disabled = true;
+        return;
+      }
+      grid.innerHTML = filtered.map(p => {
+        const isOut = p.stockQuantity <= 0;
+        const inCart = posCart.find(x => x.id === p.id);
+        return `
+          <div onclick="${isOut ? '' : `addToCart(${p.id})`}" class="p-3 bg-slate-50 dark:bg-slate-700/60 rounded-xl border ${
+            inCart ? 'border-tindahan-600 ring-2 ring-tindahan-600/30' : 'border-slate-200 dark:border-slate-600'
+          } cursor-pointer hover:shadow-md transition select-none flex flex-col justify-between ${isOut ? 'opacity-40 cursor-not-allowed' : ''}">
+            <div class="flex justify-between items-start">
+              <h5 class="font-bold text-xs line-clamp-2">${p.name}</h5>
+              ${inCart ? `<span class="bg-tindahan-700 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">${inCart.quantity}</span>` : ''}
+            </div>
+            <div class="mt-2 flex justify-between items-baseline">
+              <span class="text-sm font-black text-tindahan-700 dark:text-tindahan-400">₱${p.sellingPrice.toFixed(2)}</span>
+              <span class="text-[10px] text-slate-400">${isOut ? 'Ubos' : `Stk: ${p.stockQuantity}`}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Cart
+      const cartContainer = document.getElementById('pos-cart-items');
+      const badge = document.getElementById('cart-nav-badge');
+      const totalItems = posCart.reduce((acc, x) => acc + x.quantity, 0);
+
+      if (totalItems > 0) {
+        badge.innerText = totalItems;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+
+      if (posCart.length === 0) {
+        cartContainer.innerHTML = `<div class="py-8 text-center text-xs text-slate-400">Pindutin ang mga paninda sa kaliwa para idagdag sa bayarin.</div>`;
+      } else {
+        cartContainer.innerHTML = posCart.map(item => `
+          <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-700">
+            <div class="flex-1 pr-2">
+              <p class="font-bold text-xs line-clamp-1">${item.name}</p>
+              <p class="text-[10px] text-slate-400">₱${item.sellingPrice.toFixed(2)} each</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button onclick="updateCartQty(${item.id}, ${item.quantity - 1})" class="w-6 h-6 rounded-full bg-white dark:bg-slate-600 shadow text-xs font-bold">-</button>
+              <span class="font-bold text-xs">${item.quantity}</span>
+              <button onclick="updateCartQty(${item.id}, ${item.quantity + 1})" class="w-6 h-6 rounded-full bg-tindahan-100 dark:bg-tindahan-900 text-tindahan-800 dark:text-tindahan-200 text-xs font-bold">+</button>
+            </div>
+            <span class="font-extrabold text-xs ml-3 text-tindahan-700 dark:text-tindahan-400">₱${(item.sellingPrice * item.quantity).toFixed(2)}</span>
+          </div>
+        `).join('');
+      }
+
+      const totalDue = posCart.reduce((acc, x) => acc + (x.sellingPrice * x.quantity), 0);
+      document.getElementById('pos-total-due').innerText = `₱${totalDue.toFixed(2)}`;
+
+      const cash = parseFloat(document.getElementById('pos-cash-input')?.value) || 0;
+      const change = Math.max(0, cash - totalDue);
+      document.getElementById('pos-change-due').innerText = `₱${change.toFixed(2)}`;
+
+      const completeBtn = document.getElementById('btn-complete-pos');
+      completeBtn.disabled = posCart.length === 0 || (cash > 0 && cash < totalDue);
+    }
+
+    function addToCart(id) {
+      const p = products.find(x => x.id === id);
+      if (!p || p.stockQuantity <= 0) return;
+      const existing = posCart.find(x => x.id === id);
+      if (existing) {
+        if (existing.quantity < p.stockQuantity) {
+          existing.quantity += 1;
+        } else {
+          showToast(`Hanggang ${p.stockQuantity} lang ang stock!`, 'fa-triangle-exclamation', true);
+        }
+      } else {
+        posCart.push({ ...p, quantity: 1 });
+      }
+      renderPos();
+    }
+
+    function updateCartQty(id, qty) {
+      if (qty <= 0) {
+        posCart = posCart.filter(x => x.id !== id);
+      } else {
+        const p = products.find(x => x.id === id);
+        const item = posCart.find(x => x.id === id);
+        if (item && p) {
+          item.quantity = Math.min(qty, p.stockQuantity);
+        }
+      }
+      renderPos();
+    }
+
+    function clearPosCart() {
+      posCart = [];
+      document.getElementById('pos-cash-input').value = '';
+      renderPos();
+    }
+
+    function setPosExact() {
+      const total = posCart.reduce((acc, x) => acc + (x.sellingPrice * x.quantity), 0);
+      document.getElementById('pos-cash-input').value = total > 0 ? total.toFixed(2) : '';
+      renderPos();
+    }
+
+    function setPosCash(amount) {
+      document.getElementById('pos-cash-input').value = amount;
+      renderPos();
+    }
+
+    // Complete POS Sale
+    function completePosSale() {
+      if (posCart.length === 0) return;
+      const totalDue = posCart.reduce((acc, x) => acc + (x.sellingPrice * x.quantity), 0);
+      const cash = parseFloat(document.getElementById('pos-cash-input').value) || totalDue;
+      const change = Math.max(0, cash - totalDue);
+      const receiptNo = `REC-${Date.now() % 1000000}`;
+
+      // Deduct stock & log
+      posCart.forEach(item => {
+        const p = products.find(x => x.id === item.id);
+        if (p) {
+          p.stockQuantity -= item.quantity;
+          const itemProfit = (p.sellingPrice - p.costPrice) * item.quantity;
+          sales.unshift({
+            id: Date.now() + Math.random(),
+            receiptNumber: receiptNo,
+            productId: p.id,
+            productName: p.name,
+            quantity: item.quantity,
+            total: p.sellingPrice * item.quantity,
+            profit: itemProfit,
+            cashier: getActiveCashierName(),
+            timestamp: Date.now()
+          });
+          stockLogs.unshift({
+            id: Date.now() + Math.random(),
+            productId: p.id,
+            productName: p.name,
+            changeAmount: -item.quantity,
+            previousStock: p.stockQuantity + item.quantity,
+            newStock: p.stockQuantity,
+            reason: `POS Benta (${receiptNo})`,
+            performedBy: getActiveCashierName(),
+            timestamp: Date.now()
+          });
+        }
+      });
+
+      // Show receipt modal
+      document.getElementById('receipt-no').innerText = receiptNo;
+      document.getElementById('receipt-date').innerText = new Date().toLocaleString();
+      document.getElementById('receipt-total').innerText = `₱${totalDue.toFixed(2)}`;
+      document.getElementById('receipt-paid').innerText = `₱${cash.toFixed(2)}`;
+      document.getElementById('receipt-change').innerText = `₱${change.toFixed(2)}`;
+      document.getElementById('receipt-items').innerHTML = posCart.map(x => `
+        <div class="flex justify-between">
+          <span>${x.quantity}x ${x.name}</span>
+          <span class="font-bold">₱${(x.sellingPrice * x.quantity).toFixed(2)}</span>
+        </div>
+      `).join('');
+
+      document.getElementById('modal-receipt').classList.remove('hidden');
+      clearPosCart();
+      saveState();
+      showToast(`Naitala ang benta! Resibo: ${receiptNo}`);
+    }
+
+    function closeReceiptModal() {
+      document.getElementById('modal-receipt').classList.add('hidden');
+    }
+
+    // Render Reports
+    function renderReports() {
+      let filtered = sales;
+      const now = Date.now();
+      if (currentPeriod === 'today') {
+        const startOfDay = new Date().setHours(0,0,0,0);
+        filtered = sales.filter(s => s.timestamp >= startOfDay);
+      } else if (currentPeriod === 'week') {
+        const startOfWeek = now - (7 * 86400000);
+        filtered = sales.filter(s => s.timestamp >= startOfWeek);
+      }
+
+      const rev = filtered.reduce((acc, s) => acc + s.total, 0);
+      const prof = filtered.reduce((acc, s) => acc + s.profit, 0);
+      const margin = rev > 0 ? ((prof / rev) * 100).toFixed(1) : 0;
+
+      document.getElementById('report-revenue').innerText = `₱${rev.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+      document.getElementById('report-profit').innerText = `₱${prof.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+      document.getElementById('report-tx-count').innerText = `${filtered.length} Transaksyon`;
+      document.getElementById('report-margin').innerText = `Profit Margin: ${margin}%`;
+      document.getElementById('sales-count-badge').innerText = `${filtered.length} benta`;
+
+      // Top Sellers
+      const grouped = {};
+      filtered.forEach(s => {
+        if (!grouped[s.productName]) grouped[s.productName] = { qty: 0, rev: 0 };
+        grouped[s.productName].qty += s.quantity;
+        grouped[s.productName].rev += s.total;
+      });
+      const top = Object.entries(grouped).sort((a,b) => b[1].qty - a[1].qty).slice(0, 4);
+
+      document.getElementById('top-sellers-list').innerHTML = top.length ? top.map(([name, data], idx) => `
+        <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-700/60 last:border-0">
+          <span class="font-bold"><span class="text-amber-500 font-extrabold mr-1.5">#${idx+1}</span>${name}</span>
+          <span class="font-semibold text-slate-500">${data.qty} sold (₱${data.rev.toFixed(2)})</span>
+        </div>
+      `).join('') : '<p class="text-slate-400">Wala pang benta sa panahong ito.</p>';
+
+      // Table
+      document.getElementById('sales-table-body').innerHTML = filtered.map(s => `
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40">
+          <td class="p-3 text-slate-400">${new Date(s.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+          <td class="p-3 font-mono font-bold text-tindahan-700 dark:text-tindahan-400">${s.receiptNumber || 'POS'}</td>
+          <td class="p-3 font-semibold">${s.productName}</td>
+          <td class="p-3 font-bold">${s.quantity}</td>
+          <td class="p-3 font-black text-slate-900 dark:text-slate-100">₱${s.total.toFixed(2)}</td>
+          <td class="p-3 font-bold text-emerald-600 dark:text-emerald-400">+₱${s.profit.toFixed(2)}</td>
+          <td class="p-3 text-slate-500">${s.cashier || 'May-ari'}</td>
+        </tr>
+      `).join('');
+    }
+
+    function setPeriod(p) {
+      currentPeriod = p;
+      ['today', 'week', 'all'].forEach(x => {
+        const btn = document.getElementById(`period-${x}`);
+        if (x === p) {
+          btn.className = "flex-1 py-1.5 rounded-lg font-bold text-xs bg-white dark:bg-slate-700 shadow text-tindahan-700 dark:text-tindahan-400";
+        } else {
+          btn.className = "flex-1 py-1.5 rounded-lg font-medium text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200";
+        }
+      });
+      renderReports();
+    }
+
+    // Render Discrepancy & Audit
+    function renderAudit() {
+      const container = document.getElementById('audit-items-container');
+      container.innerHTML = products.map(p => {
+        return `
+          <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3" id="audit-row-${p.id}">
+            <div>
+              <h4 class="font-bold text-sm text-slate-900 dark:text-slate-100">${p.name}</h4>
+              <p class="text-xs text-slate-400">System Count: <span class="font-bold text-slate-700 dark:text-slate-200">${p.stockQuantity} ${p.unit}</span> (₱${p.sellingPrice.toFixed(2)} bawat isa)</p>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <div class="flex items-center space-x-1 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-lg">
+                <span class="text-xs text-slate-500 mr-1">Aktwal:</span>
+                <input type="number" id="actual-input-${p.id}" value="${p.stockQuantity}" oninput="checkDiscrepancy(${p.id})" class="w-16 px-2 py-1 text-center font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-xs">
+              </div>
+
+              <div id="discrepancy-badge-${p.id}" class="text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400">
+                Tugma
+              </div>
+
+              <button onclick="reconcileStock(${p.id})" id="reconcile-btn-${p.id}" class="hidden bg-tindahan-700 hover:bg-tindahan-800 text-white px-3 py-1 rounded-lg text-xs font-bold transition">
+                Itama
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Stock Log History
+      const logs = document.getElementById('stock-logs-container');
+      logs.innerHTML = stockLogs.length ? stockLogs.slice(0, 30).map(l => {
+        const isPos = l.changeAmount > 0;
+        return `
+          <div class="p-3 flex justify-between items-center text-xs">
+            <div>
+              <p class="font-bold text-slate-800 dark:text-slate-200">${l.productName}</p>
+              <p class="text-[11px] text-slate-400">${l.reason} • ${l.performedBy} (${new Date(l.timestamp).toLocaleDateString()} ${new Date(l.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})})</p>
+            </div>
+            <div class="text-right">
+              <span class="font-black ${isPos ? 'text-emerald-600' : 'text-rose-600'}">${isPos ? `+${l.changeAmount}` : l.changeAmount}</span>
+              <p class="text-[10px] text-slate-400">${l.previousStock} ➔ ${l.newStock}</p>
+            </div>
+          </div>
+        `;
+      }).join('') : '<p class="p-4 text-xs text-slate-400 text-center">Wala pang stock change records.</p>';
+    }
+
+    function checkDiscrepancy(id) {
+      const p = products.find(x => x.id === id);
+      const input = document.getElementById(`actual-input-${id}`);
+      const actual = parseInt(input.value) || 0;
+      const diff = actual - p.stockQuantity;
+      const badge = document.getElementById(`discrepancy-badge-${id}`);
+      const btn = document.getElementById(`reconcile-btn-${id}`);
+
+      if (diff === 0) {
+        badge.className = "text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400";
+        badge.innerText = "Tugma";
+        btn.classList.add('hidden');
+      } else if (diff < 0) {
+        const loss = Math.abs(diff) * p.sellingPrice;
+        badge.className = "text-xs font-bold px-2.5 py-1 rounded-md bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400";
+        badge.innerText = `Kulang ng ${Math.abs(diff)} (Lugi: ₱${loss.toFixed(2)})`;
+        btn.classList.remove('hidden');
+      } else {
+        badge.className = "text-xs font-bold px-2.5 py-1 rounded-md bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400";
+        badge.innerText = `Sobra ng +${diff}`;
+        btn.classList.remove('hidden');
+      }
+    }
+
+    function reconcileStock(id) {
+      const p = products.find(x => x.id === id);
+      const input = document.getElementById(`actual-input-${id}`);
+      const actual = parseInt(input.value) || 0;
+      const diff = actual - p.stockQuantity;
+
+      stockLogs.unshift({
+        id: Date.now(),
+        productId: p.id,
+        productName: p.name,
+        changeAmount: diff,
+        previousStock: p.stockQuantity,
+        newStock: actual,
+        reason: diff < 0 ? `Audit Discrepancy: Kulang ng ${Math.abs(diff)} (Nawawala)` : `Audit Discrepancy: Sobra ng ${diff}`,
+        performedBy: getActiveCashierName(),
+        timestamp: Date.now()
+      });
+
+      p.stockQuantity = actual;
+      saveState();
+      showToast(`Na-reconcile ang stock ng ${p.name} (Bagong Stock: ${actual})`);
+      renderAudit();
+    }
+
+    // Render Alerts
+    function renderAlerts() {
+      const lowStock = products.filter(p => p.stockQuantity <= p.lowStockThreshold);
+      const now = Date.now();
+      const expired = products.filter(p => p.expiry && p.expiry <= now);
+      const nearExpiry = products.filter(p => p.expiry && p.expiry > now && (p.expiry - now) <= 30*86400000);
+
+      document.getElementById('alerts-nav-badge').innerText = lowStock.length + expired.length;
+
+      // Low stock
+      const lowContainer = document.getElementById('low-stock-container');
+      lowContainer.innerHTML = lowStock.length ? lowStock.map(p => `
+        <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-amber-200 dark:border-amber-900/60 flex justify-between items-center text-xs">
+          <div>
+            <h4 class="font-bold text-slate-900 dark:text-slate-100">${p.name}</h4>
+            <p class="text-amber-600 font-bold">${p.stockQuantity <= 0 ? 'UBOS NA' : `Kasalukuyan: ${p.stockQuantity} ${p.unit}`} (Threshold: ${p.lowStockThreshold})</p>
+          </div>
+          <button onclick="quickAdd10(${p.id})" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-sm">+10 Stock</button>
+        </div>
+      `).join('') : '<p class="text-xs text-slate-400 p-2">Sapat ang stock ng lahat ng paninda!</p>';
+
+      // Expiry
+      const expContainer = document.getElementById('expiry-container');
+      const allExp = [...expired, ...nearExpiry];
+      expContainer.innerHTML = allExp.length ? allExp.map(p => {
+        const isExp = p.expiry <= now;
+        return `
+          <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border ${isExp ? 'border-rose-300 dark:border-rose-900' : 'border-amber-200 dark:border-amber-900'} flex justify-between items-center text-xs">
+            <div>
+              <span class="${isExp ? 'bg-rose-600' : 'bg-amber-500'} text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded">${isExp ? 'EXPIRED' : 'MALAPIT NA'}</span>
+              <h4 class="font-bold text-slate-900 dark:text-slate-100 mt-1">${p.name}</h4>
+              <p class="text-slate-400">${new Date(p.expiry).toLocaleDateString()} • Stock: ${p.stockQuantity} ${p.unit}</p>
+            </div>
+            ${isExp ? `<button onclick="discardStock(${p.id})" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg shadow-sm">Itapon / Bawas</button>` : ''}
+          </div>
+        `;
+      }).join('') : '<p class="text-xs text-slate-400 p-2">Walang panindang expired o malapit nang ma-expire.</p>';
+    }
+
+    function quickAdd10(id) {
+      const p = products.find(x => x.id === id);
+      if (p) {
+        p.stockQuantity += 10;
+        p.lastRestocked = Date.now();
+        stockLogs.unshift({
+          id: Date.now(),
+          productId: p.id,
+          productName: p.name,
+          changeAmount: +10,
+          previousStock: p.stockQuantity - 10,
+          newStock: p.stockQuantity,
+          reason: "Restock (+10)",
+          performedBy: getActiveCashierName(),
+          timestamp: Date.now()
+        });
+        saveState();
+        showToast(`Na-restock: +10 sa ${p.name}`);
+      }
+    }
+
+    function discardStock(id) {
+      const p = products.find(x => x.id === id);
+      if (p) {
+        const qty = p.stockQuantity;
+        p.stockQuantity = 0;
+        stockLogs.unshift({
+          id: Date.now(),
+          productId: p.id,
+          productName: p.name,
+          changeAmount: -qty,
+          previousStock: qty,
+          newStock: 0,
+          reason: "Bawas Expired / Discarded",
+          performedBy: getActiveCashierName(),
+          timestamp: Date.now()
+        });
+        saveState();
+        showToast(`Itinapon ang ${qty} expired na ${p.name}`);
+      }
+    }
+
+    // Voice Parser & Web Speech API
+    const TAGALOG_NUMBERS = {
+      "isang": 1, "isa": 1, "one": 1,
+      "dalawang": 2, "dalawa": 2, "two": 2,
+      "tatlong": 3, "tatlo": 3, "three": 3,
+      "apat na": 4, "apat": 4, "four": 4,
+      "limang": 5, "lima": 5, "five": 5,
+      "sampung": 10, "sampu": 10, "ten": 10,
+      "dosena": 12, "isang dosena": 12
+    };
+
+    function parseVoiceText(raw) {
+      const text = raw.toLowerCase().trim();
+      let qty = 1;
+
+      // Extract number
+      const numMatch = text.match(/\b(\d+)\b/);
+      if (numMatch) {
+        qty = parseInt(numMatch[1]) || 1;
+      } else {
+        for (const [w, n] of Object.entries(TAGALOG_NUMBERS)) {
+          if (text.includes(w)) {
+            qty = n;
+            break;
+          }
+        }
+      }
+
+      // Action: sell vs restock
+      const isRestock = /dagdag|add|restock|pasok/.test(text);
+
+      // Clean search keyword
+      let clean = text.replace(/benta|nabenta|bawas|sold|sell|dagdag|add|restock|mga|ng|ang|piraso|pcs|bote|pack/g, ' ').replace(/\s+/g, ' ').trim();
+
+      // Match product
+      let matched = products.find(p => p.name.toLowerCase().includes(clean) || clean.includes(p.name.toLowerCase()));
+      if (!matched) {
+        // Token match
+        const tokens = clean.split(' ').filter(t => t.length >= 3);
+        matched = products.find(p => tokens.some(tok => p.name.toLowerCase().includes(tok)));
+      }
+
+      if (matched) {
+        if (isRestock) {
+          matched.stockQuantity += qty;
+          matched.lastRestocked = Date.now();
+          stockLogs.unshift({
+            id: Date.now(),
+            productId: matched.id,
+            productName: matched.name,
+            changeAmount: qty,
+            previousStock: matched.stockQuantity - qty,
+            newStock: matched.stockQuantity,
+            reason: `Voice Command Restock (+${qty})`,
+            performedBy: getActiveCashierName(),
+            timestamp: Date.now()
+          });
+          showToast(`Voice Command: +${qty} idinagdag sa ${matched.name}!`);
+        } else {
+          if (matched.stockQuantity < qty) {
+            showToast(`Kulang ang stock ng ${matched.name}!`, 'fa-triangle-exclamation', true);
+            return;
+          }
+          matched.stockQuantity -= qty;
+          const profit = (matched.sellingPrice - matched.costPrice) * qty;
+          sales.unshift({
+            id: Date.now(),
+            receiptNumber: `VOICE-${Date.now() % 10000}`,
+            productId: matched.id,
+            productName: matched.name,
+            quantity: qty,
+            total: matched.sellingPrice * qty,
+            profit: profit,
+            cashier: getActiveCashierName(),
+            timestamp: Date.now()
+          });
+          stockLogs.unshift({
+            id: Date.now(),
+            productId: matched.id,
+            productName: matched.name,
+            changeAmount: -qty,
+            previousStock: matched.stockQuantity + qty,
+            newStock: matched.stockQuantity,
+            reason: `Voice Command Benta (-${qty})`,
+            performedBy: getActiveCashierName(),
+            timestamp: Date.now()
+          });
+          showToast(`Voice Command: Nabenta ${qty}x ${matched.name} (₱${(matched.sellingPrice * qty).toFixed(2)})!`);
+        }
+        saveState();
+        closeVoiceModal();
+      } else {
+        showToast(`Hindi matukoy ang produkto: "${clean}"`, 'fa-triangle-exclamation', true);
+      }
+    }
+
+    function toggleSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        showToast("Speech Recognition not supported in this browser. Please use text input below.", "fa-circle-exclamation", true);
+        return;
+      }
+
+      if (!recognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'fil-PH';
+        recognition.interimResults = false;
+        recognition.onstart = () => {
+          isListening = true;
+          document.getElementById('voice-status').innerText = "Nakikinig... Magsalita ngayon!";
+          document.getElementById('mic-pulse-ring').classList.remove('hidden');
+          document.getElementById('mic-pulse-ring').classList.add('mic-pulse');
+        };
+        recognition.onresult = (e) => {
+          const transcript = e.results[0][0].transcript;
+          parseVoiceText(transcript);
+        };
+        recognition.onend = () => {
+          isListening = false;
+          document.getElementById('voice-status').innerText = "Pindutin ang mikropono para magsalita";
+          document.getElementById('mic-pulse-ring').classList.add('hidden');
+        };
+        recognition.onerror = () => {
+          isListening = false;
+          document.getElementById('voice-status').innerText = "Pindutin ang mikropono para magsalita";
+          document.getElementById('mic-pulse-ring').classList.add('hidden');
+        };
+      }
+
+      if (isListening) {
+        recognition.stop();
+      } else {
+        recognition.start();
+      }
+    }
+
+    function processVoiceManual() {
+      const val = document.getElementById('voice-manual-input').value;
+      if (val.trim()) {
+        parseVoiceText(val);
+        document.getElementById('voice-manual-input').value = '';
+      }
+    }
+
+    function testVoiceCmd(cmd) {
+      parseVoiceText(cmd);
+    }
+
+    function openVoiceModal() {
+      document.getElementById('modal-voice').classList.remove('hidden');
+    }
+    function closeVoiceModal() {
+      document.getElementById('modal-voice').classList.add('hidden');
+    }
+
+    // Add / Edit Modal
+    function openAddModal() {
+      document.getElementById('modal-title').innerText = "Magdagdag ng Bagong Paninda";
+      document.getElementById('prod-id').value = "";
+      document.getElementById('prod-name').value = "";
+      document.getElementById('prod-cost').value = "";
+      document.getElementById('prod-sell').value = "";
+      document.getElementById('prod-stock').value = "10";
+      document.getElementById('prod-threshold').value = "5";
+      document.getElementById('prod-unit').value = "pcs";
+      document.getElementById('prod-expiry').value = "";
+      document.getElementById('modal-delete-btn-container').classList.add('hidden');
+      document.getElementById('modal-product').classList.remove('hidden');
+    }
+
+    function openEditModal(id) {
+      const p = products.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('modal-title').innerText = "I-edit ang Paninda";
+      document.getElementById('prod-id').value = p.id;
+      document.getElementById('prod-name').value = p.name;
+      document.getElementById('prod-category').value = p.category;
+      document.getElementById('prod-cost').value = p.costPrice;
+      document.getElementById('prod-sell').value = p.sellingPrice;
+      document.getElementById('prod-stock').value = p.stockQuantity;
+      document.getElementById('prod-threshold').value = p.lowStockThreshold;
+      document.getElementById('prod-unit').value = p.unit;
+      document.getElementById('prod-expiry').value = p.expiry ? new Date(p.expiry).toISOString().split('T')[0] : "";
+      document.getElementById('modal-delete-btn-container').classList.remove('hidden');
+      document.getElementById('modal-product').classList.remove('hidden');
+    }
+
+    // --- DELETE ITEM LOGIC ---
+    let pendingDeleteProductId = null;
+    let lastDeletedItem = null;
+
+    function promptDeleteProduct(id) {
+      const p = products.find(x => x.id === id);
+      if (!p) return;
+      pendingDeleteProductId = id;
+      document.getElementById('del-confirm-name').innerText = p.name;
+      document.getElementById('del-confirm-stock').innerText = `${p.stockQuantity} ${p.unit}`;
+      document.getElementById('del-confirm-value').innerText = `₱${(p.stockQuantity * p.sellingPrice).toFixed(2)}`;
+      document.getElementById('modal-delete-confirm').classList.remove('hidden');
+    }
+
+    function closeDeleteConfirmModal() {
+      document.getElementById('modal-delete-confirm').classList.add('hidden');
+      pendingDeleteProductId = null;
+    }
+
+    function confirmDeleteCurrentModalProduct() {
+      const id = parseInt(document.getElementById('prod-id').value);
+      if (id) {
+        closeProductModal();
+        promptDeleteProduct(id);
+      }
+    }
+
+    function executeDeleteProduct() {
+      if (!pendingDeleteProductId) return;
+      const index = products.findIndex(x => x.id === pendingDeleteProductId);
+      if (index !== -1) {
+        const deleted = products.splice(index, 1)[0];
+        lastDeletedItem = deleted;
+
+        stockLogs.unshift({
+          id: Date.now(),
+          productId: deleted.id,
+          productName: deleted.name,
+          changeAmount: -deleted.stockQuantity,
+          previousStock: deleted.stockQuantity,
+          newStock: 0,
+          reason: `Nabura ang buong item (${deleted.stockQuantity} ${deleted.unit})`,
+          performedBy: getActiveCashierName(),
+          timestamp: Date.now()
+        });
+
+        saveState();
+        closeDeleteConfirmModal();
+        renderAll();
+        showToastWithUndo(`Nabura ang ${deleted.name} sa imbentaryo.`);
+      }
+    }
+
+    function undoLastDelete() {
+      if (!lastDeletedItem) return;
+      products.unshift(lastDeletedItem);
+      stockLogs.unshift({
+        id: Date.now(),
+        productId: lastDeletedItem.id,
+        productName: lastDeletedItem.name,
+        changeAmount: lastDeletedItem.stockQuantity,
+        previousStock: 0,
+        newStock: lastDeletedItem.stockQuantity,
+        reason: `Ibinalik ang naburang item (Undo)`,
+        performedBy: getActiveCashierName(),
+        timestamp: Date.now()
+      });
+      showToast(`Ibinalik ang ${lastDeletedItem.name}!`);
+      lastDeletedItem = null;
+      saveState();
+      renderAll();
+    }
+
+    function showToastWithUndo(msg) {
+      const banner = document.getElementById('toast-banner');
+      banner.innerHTML = `
+        <div class="bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 text-sm font-semibold border border-slate-700">
+          <i class="fa-solid fa-trash-can text-rose-500 text-base"></i>
+          <span>${msg}</span>
+          <button onclick="undoLastDelete()" class="ml-2 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition uppercase tracking-wider">
+            Undo
+          </button>
+        </div>
+      `;
+      banner.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-2');
+      clearTimeout(window._toastTimeout);
+      window._toastTimeout = setTimeout(() => {
+        banner.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
+      }, 5000);
+    }
+
+    // --- GMAIL LOGIN & CLOUD SAVE LOGIC ---
+    function getActiveCashierName() {
+      return currentGmailUser ? currentGmailUser.name : "May-ari";
+    }
+
+    function openGmailModal() {
+      updateGmailUI();
+      document.getElementById('modal-gmail').classList.remove('hidden');
+    }
+
+    function closeGmailModal() {
+      document.getElementById('modal-gmail').classList.add('hidden');
+    }
+
+    function submitWallLogin() {
+      const email = document.getElementById('wall-input-email').value.trim();
+      const name = document.getElementById('wall-input-name').value.trim();
+
+      if (!email || !email.includes('@')) {
+        showToast("Mangyaring maglagay ng tamang Gmail address!", "fa-triangle-exclamation", true);
+        return;
+      }
+      if (!name) {
+        showToast("Mangyaring ilagay ang iyong pangalan!", "fa-triangle-exclamation", true);
+        return;
+      }
+
+      currentGmailUser = {
+        email: email,
+        name: name,
+        linkedAt: Date.now(),
+        lastBackupTimestamp: Date.now()
+      };
+
+      localStorage.setItem('sims_gmail_user', JSON.stringify(currentGmailUser));
+      loadUserData();
+      checkLoginGate();
+      renderAll();
+
+      showToast(`Maligayang pagdating, ${name}! Mangyaring i-input ang iyong unang paninda.`);
+
+      if (products.length === 0) {
+        setTimeout(() => {
+          openAddModal();
+        }, 300);
+      }
+    }
+
+    function submitGmailLogin() {
+      const email = document.getElementById('gmail-input-email').value.trim();
+      const name = document.getElementById('gmail-input-name').value.trim() || 'May-ari';
+
+      if (!email || !email.includes('@')) {
+        showToast("Maglagay ng tamang Gmail address!", "fa-triangle-exclamation", true);
+        return;
+      }
+
+      currentGmailUser = {
+        email: email,
+        name: name,
+        linkedAt: Date.now(),
+        lastBackupTimestamp: Date.now()
+      };
+
+      localStorage.setItem('sims_gmail_user', JSON.stringify(currentGmailUser));
+      loadUserData();
+      checkLoginGate();
+      closeGmailModal();
+      renderAll();
+
+      showToast(`Naka-login na bilang ${email}!`);
+
+      if (products.length === 0) {
+        setTimeout(() => {
+          openAddModal();
+        }, 300);
+      }
+    }
+
+    function saveChangesToGmail() {
+      if (!currentGmailUser) {
+        openGmailModal();
+        return;
+      }
+      const now = Date.now();
+      currentGmailUser.lastBackupTimestamp = now;
+      localStorage.setItem(`sims_backup_${currentGmailUser.email}`, JSON.stringify({
+        products: products,
+        sales: sales,
+        stockLogs: stockLogs,
+        timestamp: now
+      }));
+      localStorage.setItem('sims_gmail_user', JSON.stringify(currentGmailUser));
+      saveState();
+      updateGmailUI();
+      showToast(`Matagumpay na na-save ang ${products.length} paninda sa Gmail!`);
+    }
+
+    function restoreBackupFromGmail() {
+      if (!currentGmailUser) return;
+      const backupStr = localStorage.getItem(`sims_backup_${currentGmailUser.email}`);
+      if (!backupStr) {
+        showToast("Walang nakitang na-save na backup.", "fa-circle-xmark", true);
+        return;
+      }
+      try {
+        const backup = JSON.parse(backupStr);
+        if (backup.products && Array.isArray(backup.products)) {
+          products = backup.products;
+          if (backup.sales) sales = backup.sales;
+          if (backup.stockLogs) stockLogs = backup.stockLogs;
+          saveState();
+          renderAll();
+          showToast(`Naibalik ang backup! (${products.length} paninda)`);
+          closeGmailModal();
+        }
+      } catch (err) {
+        showToast("Error sa pag-restore ng backup.", "fa-circle-xmark", true);
+      }
+    }
+
+    function signOutGmail() {
+      currentGmailUser = null;
+      localStorage.removeItem('sims_gmail_user');
+      products = [];
+      sales = [];
+      stockLogs = [];
+      posCart = [];
+      closeGmailModal();
+      updateGmailUI();
+      renderAll();
+      checkLoginGate();
+      showToast("Naka-sign out na sa Gmail. Mag-log in muli upang magpatuloy.");
+    }
+
+    function toggleGmailSwitchForm() {
+      const form = document.getElementById('gmail-login-form');
+      form.classList.toggle('hidden');
+    }
+
+    function updateGmailUI() {
+      const activeCard = document.getElementById('gmail-active-card');
+      const loginForm = document.getElementById('gmail-login-form');
+      const headerLabel = document.getElementById('header-gmail-label');
+      const headerPill = document.getElementById('btn-open-gmail');
+      const headerCashier = document.getElementById('header-cashier');
+
+      if (currentGmailUser && currentGmailUser.email) {
+        activeCard.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        document.getElementById('gmail-initial').innerText = currentGmailUser.email.charAt(0).toUpperCase();
+        document.getElementById('gmail-user-name').innerText = currentGmailUser.name;
+        document.getElementById('gmail-user-email').innerText = currentGmailUser.email;
+        document.getElementById('gmail-last-saved').innerText = currentGmailUser.lastBackupTimestamp
+          ? new Date(currentGmailUser.lastBackupTimestamp).toLocaleString()
+          : "Kasalukuyang Aktibo";
+
+        headerLabel.innerText = currentGmailUser.email.split('@')[0];
+        headerPill.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50 hover:bg-emerald-100";
+        if (headerCashier) headerCashier.innerText = currentGmailUser.name;
+      } else {
+        activeCard.classList.add('hidden');
+        loginForm.classList.remove('hidden');
+        headerLabel.innerText = "Mag-login sa Gmail";
+        headerPill.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 hover:bg-rose-100";
+        if (headerCashier) headerCashier.innerText = "Mag-log in";
+      }
+    }
+
+    function closeProductModal() {
+      document.getElementById('modal-product').classList.add('hidden');
+    }
+
+    function saveProductModal() {
+      const id = document.getElementById('prod-id').value;
+      const name = document.getElementById('prod-name').value.trim();
+      const cat = document.getElementById('prod-category').value;
+      const cost = parseFloat(document.getElementById('prod-cost').value) || 0;
+      const sell = parseFloat(document.getElementById('prod-sell').value) || 0;
+      const stock = parseInt(document.getElementById('prod-stock').value) || 0;
+      const threshold = parseInt(document.getElementById('prod-threshold').value) || 5;
+      const unit = document.getElementById('prod-unit').value.trim() || 'pcs';
+      const expiryVal = document.getElementById('prod-expiry').value;
+      const expiry = expiryVal ? new Date(expiryVal).getTime() : null;
+
+      if (!name || sell <= 0) {
+        showToast("Pakilagay ang pangalan at tamang presyo!", "fa-triangle-exclamation", true);
+        return;
+      }
+
+      if (id) {
+        const p = products.find(x => x.id === parseInt(id));
+        if (p) {
+          p.name = name; p.category = cat; p.costPrice = cost; p.sellingPrice = sell;
+          p.stockQuantity = stock; p.lowStockThreshold = threshold; p.unit = unit; p.expiry = expiry;
+        }
+        showToast(`Na-update ang ${name}!`);
+      } else {
+        const newId = products.length ? Math.max(...products.map(x => x.id)) + 1 : 1;
+        products.push({
+          id: newId,
+          name, category: cat, costPrice: cost, sellingPrice: sell,
+          stockQuantity: stock, lowStockThreshold: threshold, unit,
+          dateAdded: Date.now(), lastRestocked: Date.now(), expiry
+        });
+        stockLogs.unshift({
+          id: Date.now(),
+          productId: newId,
+          productName: name,
+          changeAmount: stock,
+          previousStock: 0,
+          newStock: stock,
+          reason: "Bagong Produkto (Initial)",
+          performedBy: getActiveCashierName(),
+          timestamp: Date.now()
+        });
+        showToast(`Matagumpay na naidagdag ang ${name}!`);
+      }
+
+      closeProductModal();
+      saveState();
+    }
+
+    // Toggle Dark Mode
+    document.getElementById('btn-toggle-dark').addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      document.getElementById('dark-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+      localStorage.setItem('sims_dark', isDark);
+    });
+    if (localStorage.getItem('sims_dark') === 'true') {
+      document.documentElement.classList.add('dark');
+      document.getElementById('dark-icon').className = 'fa-solid fa-sun';
+    }
+
+    // Toggle Language
+    document.getElementById('btn-toggle-lang').addEventListener('click', () => {
+      isTagalog = !isTagalog;
+      document.getElementById('lang-flag').innerText = isTagalog ? '🇵🇭' : '🇺🇸';
+      document.getElementById('lang-label').innerText = isTagalog ? 'Taglish' : 'English';
+      showToast(isTagalog ? "Wika: Taglish / Filipino" : "Language: English");
+    });
+
+    // Voice Modal Button
+    document.getElementById('btn-open-voice').addEventListener('click', openVoiceModal);
+
+    // Filter listeners
+    document.getElementById('inventory-search').addEventListener('input', renderInventory);
+    document.getElementById('pos-search').addEventListener('input', renderPos);
+    document.getElementById('pos-cash-input').addEventListener('input', renderPos);
+
+    function renderAll() {
+      renderCategoryChips();
+      renderInventory();
+      renderPos();
+      renderReports();
+      renderAudit();
+      renderAlerts();
+      updateGmailUI();
+    }
+
+    // Initialize
+    loadUserData();
+    renderAll();
+    checkLoginGate();
+    if (currentGmailUser && products.length === 0) {
+      setTimeout(() => {
+        openAddModal();
+      }, 400);
+    }
+  </script>
+</body>
+</html>
